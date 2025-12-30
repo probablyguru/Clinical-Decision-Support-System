@@ -11,7 +11,7 @@ A Brain Tumor Classification project using MRI scans. This system leverages deep
 - [Model](#model)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Streamlit Deployment](#streamlit-deployment)
+- [Deployment](#deployment)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -51,6 +51,27 @@ The dataset used is the **Brain Tumor MRI Dataset** from Kaggle:
 > The model is stored using **Git LFS** due to its large size (>100MB).
 
 ---
+## Deployment
+## Deployment
+
+To deploy the project locally and test the web interface:
+
+### 1. Download necessary files
+- `api.py` — the backend API script  
+- `test.html` — the frontend HTML file  
+- `final_model.pth` — the trained model file, **managed via Git LFS** and located in the `models/` folder
+
+> ⚠️ Note: `final_model.pth` is tracked using Git LFS because it is larger than 100 MB. If you clone the repository, you need Git LFS to fetch the actual model file.
+
+### 2. Install Git LFS (if not already installed)
+- Windows: [Git LFS installer](https://git-lfs.github.com/)  
+- Mac: `brew install git-lfs`  
+- Linux: `sudo apt install git-lfs`  
+
+After installation, run:
+```bash
+git lfs install
+
 
 ## Installation
 
