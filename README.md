@@ -51,7 +51,7 @@ The dataset used is the **Brain Tumor MRI Dataset** from Kaggle:
 
 ---
 ## Deployment
-## Deployment
+
 
 To deploy the project locally and test the web interface:
 
