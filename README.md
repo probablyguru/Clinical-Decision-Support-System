@@ -3,7 +3,7 @@
 A Brain Tumor Classification project using MRI scans. This system leverages deep learning to predict tumor types and provides an easy-to-use interface for inference.
 
 ---
-
+# STREAMLIT DEMO: https://clinical-decision-support-system.streamlit.app/
 ## Table of Contents
 - [Overview](#overview)
 - [Features](#features)
@@ -12,8 +12,7 @@ A Brain Tumor Classification project using MRI scans. This system leverages deep
 - [Installation](#installation)
 - [Usage](#usage)
 - [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
+
 
 ---
 
