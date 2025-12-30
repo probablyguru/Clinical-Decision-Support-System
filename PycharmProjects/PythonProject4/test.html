@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor CDSS API Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1f77b4 0%, #2ca02c 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1em;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-group textarea { resize: vertical; min-height: 120px; }
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: #f5f5f5;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .file-input-label:hover { background: #667eea; color: white; }
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-analyze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
+        .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result-box {
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .result-box.error { border-left-color: #f5576c; background: #ffe8ea; }
+        .result-box.success { border-left-color: #2ca02c; background: #e8f5e9; }
+        .result-label { font-weight: 600; color: #333; margin-bottom: 5px; font-size: 0.9em; }
+        .result-value { font-size: 1.1em; color: #555; word-break: break-all; }
+        .flag-badge {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        .flag-none { background: #c8e6c9; color: #2ca02c; }
+        .flag-low-confidence { background: #fff3e0; color: #f57c00; }
+        .flag-ambiguous { background: #fff3e0; color: #f57c00; }
+        .flag-critical-conflict { background: #ffcdd2; color: #c62828; }
+        .loading { display: none; text-align: center; padding: 20px; }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+            .content { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Brain Tumor CDSS API</h1>
+            <p>Clinical Decision Support System - Demo</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="form-group">
+                    <label>Patient Name</label>
+                    <input type="text" id="patientName" placeholder="e.g., John Doe" value="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label>Patient Age</label>
+                    <input type="number" id="patientAge" placeholder="e.g., 45" value="45">
+                </div>
+
+                <div class="form-group">
+                    <label>Patient Gender</label>
+                    <input type="text" id="patientGender" placeholder="e.g., Male" value="Male">
+                </div>
+
+                <div class="form-group">
+                    <label>MRI Image</label>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="imageInput" accept="image/*" required>
+                        <label for="imageInput" class="file-input-label">Click to select MRI image</label>
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Doctor's Report</label>
+                    <textarea id="doctorReport" placeholder="Paste the doctor's clinical assessment..." required>Patient Name: John Doe
+Age/Sex: 45/Male
+Date: 27-Dec-2025
+
+Findings: MRI and clinical evaluation indicate a pituitary tumor. The lesion appears to be approximately 1.5 cm in size.
+
+Recommendations: Consult an endocrinologist and neurosurgeon.</textarea>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn-analyze" onclick="analyzeJSON()">📊 Analyze</button>
+                    <button class="btn-analyze" onclick="analyzePDF()">📄 Download AI Generated Report</button>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing image...</p>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2>📋 Results</h2>
+
+                <div class="result-box" id="resultStatus"></div>
+                <div class="result-box" id="resultPrediction"></div>
+                <div class="result-box" id="resultConfidence"></div>
+                <div class="result-box" id="resultSimilarity"></div>
+                <div class="result-box" id="resultWarning"></div>
+                <div class="result-box" id="resultRecommendation"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            const fileNameElement = document.getElementById('fileName');
+            if (fileName) {
+                fileNameElement.textContent = '✅ ' + fileName;
+                fileNameElement.style.display = 'block';
+            }
+        });
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        function clearResults() {
+            document.querySelectorAll('.result-box').forEach(box => {
+                box.style.display = 'none';
+            });
+        }
+
+        function displayError(message) {
+            const resultBox = document.getElementById('resultStatus');
+            resultBox.className = 'result-box error';
+            resultBox.innerHTML = `<div class="result-label">❌ Error</div><div class="result-value">${message}</div>`;
+            resultBox.style.display = 'block';
+        }
+
+        function displayResults(data) {
+            const statusBox = document.getElementById('resultStatus');
+            statusBox.className = 'result-box success';
+            statusBox.innerHTML = `<div class="result-label">✅ Analysis Successful</div>`;
+            statusBox.style.display = 'block';
+
+            const predBox = document.getElementById('resultPrediction');
+            predBox.className = 'result-box';
+            predBox.innerHTML = `<div class="result-label">🤖 AI Prediction</div><div class="result-value">${data.ai_prediction}</div>`;
+            predBox.style.display = 'block';
+
+            const confBox = document.getElementById('resultConfidence');
+            confBox.className = 'result-box';
+            confBox.innerHTML = `<div class="result-label">📈 Confidence</div><div class="result-value">${data.confidence_percent}%</div>`;
+            confBox.style.display = 'block';
+
+            const simBox = document.getElementById('resultSimilarity');
+            simBox.className = 'result-box';
+            simBox.innerHTML = `<div class="result-label">🔗 Similarity Score</div><div class="result-value">${(data.similarity_score * 100).toFixed(2)}% - ${data.agreement_level}</div>`;
+            simBox.style.display = 'block';
+
+            const warnBox = document.getElementById('resultWarning');
+            const flagClass = 'flag-' + data.warning_flag.toLowerCase().replace('_', '-');
+            warnBox.className = 'result-box';
+            warnBox.innerHTML = `<div class="result-label">⚠️ Warning Flag</div><div class="result-value"><span class="flag-badge ${flagClass}">${data.warning_flag}</span>${data.warning_message ? `<br><br>${data.warning_message}` : ''}</div>`;
+            warnBox.style.display = 'block';
+
+            const recBox = document.getElementById('resultRecommendation');
+            recBox.className = 'result-box';
+            recBox.innerHTML = `<div class="result-label">💡 Recommendation</div><div class="result-value">${data.recommendation}</div>`;
+            recBox.style.display = 'block';
+        }
+
+        async function analyzeJSON() {
+            clearResults();
+
+            const imageInput = document.getElementById('imageInput');
+            if (!imageInput.files.length) {
+                displayError('Please select an MRI image');
+                return;
+            }
+
+            if (!document.getElementById('doctorReport').value) {
+                displayError('Please enter the doctor\'s report');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const formData = new FormData();
+                formData.append('image', imageInput.files[0]);
+                formData.append('doctor_report', document.getElementById('doctorReport').value);
+                formData.append('patient_name', document.getElementById('patientName').value);
+
+                const response = await fetch('http://localhost:8000/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                showLoading(false);
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    displayError(error.error || 'API Error');
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    displayError(data.error || 'API returned error');
+                    return;
+                }
+
+                displayResults(data);
+
+            } catch (error) {
+                showLoading(false);
+                displayError('Connection error: ' + error.message);
+            }
+        }
+
+        async function analyzePDF() {
+            const imageInput = document.getElementById('imageInput');
+            if (!imageInput.files.length) {
+                displayError('Please select an MRI image');
+                return;
+            }
+
+            if (!document.getElementById('doctorReport').value) {
+                displayError('Please enter the doctor\'s report');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const formData = new FormData();
+                formData.append('image', imageInput.files[0]);
+                formData.append('doctor_report', document.getElementById('doctorReport').value);
+                formData.append('patient_name', document.getElementById('patientName').value);
+
+                const response = await fetch('http://localhost:8000/analyze-with-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                showLoading(false);
+
+                if (!response.ok) {
+                    displayError('PDF generation error');
+                    return;
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `CDSS_Report_${new Date().getTime()}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                alert('✅ PDF downloaded successfully!');
+
+            } catch (error) {
+                showLoading(false);
+                displayError('Connection error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
