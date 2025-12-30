@@ -1,0 +1,15 @@
+torch
+torchvision
+torchaudio
+streamlit
+flask
+flask-cors
+pillow
+opencv-python
+numpy
+matplotlib
+reportlab
+sentence-transformers
+scikit-learn
+pandas
+numpy
