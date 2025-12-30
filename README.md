@@ -25,6 +25,13 @@ This project implements a deep learning-based solution to classify brain MRI sca
 
 The model is trained using PyTorch and uses **Inception v3** as the base architecture.
 
+(as seen from html front end)
+<img width="1125" height="870" alt="image" src="https://github.com/user-attachments/assets/946456ce-f02f-49e5-90ef-503eb3e2c43f" />
+<img width="1112" height="897" alt="image" src="https://github.com/user-attachments/assets/531aee47-c5ba-4130-8a43-f56b81e23947" />
+(ai report generated as pdf)
+<img width="557" height="962" alt="image" src="https://github.com/user-attachments/assets/f6006ad7-e5d0-4ef9-933e-ccff142de8c6" />
+
+
 ---
 
 ## Features
